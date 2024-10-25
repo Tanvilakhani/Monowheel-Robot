@@ -1,5 +1,5 @@
 import gymnasium as gym 
-from stable_baseline3 import DQM
+from stable_baselines3 import DQN
 
 import self_balacing_necklace
 env = gym.make("SelfBalancingNecklace-v0", render_mode='human')
