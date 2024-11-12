@@ -1,10 +1,10 @@
-#include </Users/yasas/Desktop/Combined_v1/Combined_v1/PID.h>
+#include </Users/yasas/Desktop/Combined_v1/PID.h>
 
-PIDController servo_angle(2.0, 0.05, 0.01, 0, 45);
+PIDController servo_angle(2.0, 0.005, 0.001, 0, 45);
 const int servo_pin = 3;
 float init_servo_pos = 90;
 
-double x, y, z;
+double x, y;
 float init_x_angle;
 
 void setup() {
@@ -14,8 +14,13 @@ void setup() {
   imu_init();
   servo_init();
 
-  delay(2000);
-  imu_getangle(&x, &y, &z);
+  short i = 0;
+  while (i <= 100) {
+
+    imu_getangle(&x, &y);
+    i++;
+    delay(10);
+  }
   init_x_angle = x;
   servo_angle.setSetpoint(init_x_angle);
   Serial.print("Servo Setpoint = ");
@@ -26,7 +31,7 @@ void setup() {
 
 void loop() {
 
-  imu_getangle(&x, &y, &z);
+  imu_getangle(&x, &y);
 }
 
 void servo_control_loop() {
