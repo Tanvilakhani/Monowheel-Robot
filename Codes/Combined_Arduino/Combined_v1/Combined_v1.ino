@@ -1,12 +1,13 @@
-#include <C:\Users\hskankanamgamage\Downloads\Monowheel-Robot-main\Codes\Combined_Arduino\Combined_v1\PID.h>
+#include </Users/yasas/Desktop/Combined_v1/PID.h>
 
-PIDController servo_angle(2.0, 0.005, 0.001, 0, 45);
+PIDController servo_angle(0.7, 0.0003, 0.001, 0, 20);
 const int servo_pin = 3;
-float init_servo_pos = 90;
+float init_servo_pos = 103;
 
 PIDController drive_wheel(2.0, 0.05, 0.01, -100, 100);
-const int A_IA = 5;
+const int A_IA = 7;
 const int A_IB = 6;
+const int A_EN = 5;
 
 double x, y;
 float init_x_angle;
@@ -14,11 +15,10 @@ float init_y_angle;
 
 void setup() {
 
-  Serial.begin(115200);
+  Serial.begin(9600);
 
   imu_init();
   servo_init();
-  drive_motor_init();
 
   short i = 0;
   while (i <= 100) {
@@ -32,9 +32,9 @@ void setup() {
   Serial.print("Servo Setpoint = ");
   Serial.println(init_x_angle);
 
-  init_x_angle = y;
+  init_y_angle = y;
   drive_wheel.setSetpoint(init_y_angle);
-  Serial.print("Servo Setpoint = ");
+  Serial.print("Drive Motor Setpoint = ");
   Serial.println(init_y_angle);
 
   time_int_init();

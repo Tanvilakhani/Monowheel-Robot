@@ -74,7 +74,7 @@ ISR(TIMER2_COMPA_vect) {
         }
     
     #elif defined(FREQ_100HZ)
-        servo_control_loop();
+        servo_control_loop();  // Direct 100Hz execution
         drive_motor_control_loop();
     #endif
 }
