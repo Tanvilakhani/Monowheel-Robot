@@ -1,10 +1,10 @@
-#include </Users/yasas/Desktop/Combined_v1/PID.h>
+#include <C:\Users\hskankanamgamage\Downloads\Combined_v1\PID.h>
 
 PIDController servo_angle(0.7, 0.0003, 0.001, 0, 20);
 const int servo_pin = 3;
-float init_servo_pos = 103;
+float init_servo_pos = 95;
 
-PIDController drive_wheel(2.0, 0.05, 0.01, -100, 100);
+PIDController drive_wheel(2, 0.01, 0, -50, 50);
 const int A_IA = 7;
 const int A_IB = 6;
 const int A_EN = 5;
@@ -15,13 +15,13 @@ float init_y_angle;
 
 void setup() {
 
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   imu_init();
   servo_init();
 
   short i = 0;
-  while (i <= 100) {
+  while (i <= 200) {
 
     imu_getangle(&x, &y);
     i++;
@@ -43,6 +43,10 @@ void setup() {
 void loop() {
 
   imu_getangle(&x, &y);
+
+  Serial.print(x);
+  Serial.print(",");
+  Serial.println(y);
 }
 
 void servo_control_loop() {
@@ -89,5 +93,5 @@ void drive_motor_control_loop() {
 
     drive_motor_drive(1, &drive_out);
   }
-  //Serial.println(drive_out);
+  // Serial.println(drive_out);
 }

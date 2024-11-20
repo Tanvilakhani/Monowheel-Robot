@@ -10,19 +10,22 @@ void drive_motor_drive(bool dir, float* speed) {
 
   if (dir) {
 
-    analogWrite(A_IA, HIGH);
+    digitalWrite(A_IA, HIGH);
     digitalWrite(A_IB, LOW);
   } else {
 
-    analogWrite(A_IA, LOW);
+    digitalWrite(A_IA, LOW);
     digitalWrite(A_IB, HIGH);
   }
 
-  digitalWrite(A_EN, abs(*speed));
+  // int spd = map(abs(*speed), 0, 255, 110, 255);
+  int spd = 105 + (abs(*speed));
+  analogWrite(A_EN, spd);
 }
 
 void drive_motor_stop() {
 
   digitalWrite(A_IA, HIGH);
   digitalWrite(A_IB, HIGH);
+  digitalWrite(A_EN, LOW);
 }
