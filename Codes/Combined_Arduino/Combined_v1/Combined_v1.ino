@@ -1,10 +1,10 @@
-#include <C:\Users\hskankanamgamage\Downloads\Combined_v1\PID.h>
+#include <C:\Users\ysimihamimudiyansela\Downloads\Combined_v1\PID.h>
 
 PIDController servo_angle(0.7, 0.0003, 0.001, 0, 20);
 const int servo_pin = 3;
 float init_servo_pos = 95;
 
-PIDController drive_wheel(2, 0.01, 0, -50, 50);
+PIDController drive_wheel(0.005, 0.0001, 0, -155, 155);
 const int A_IA = 7;
 const int A_IB = 6;
 const int A_EN = 5;
@@ -47,32 +47,36 @@ void loop() {
   Serial.print(x);
   Serial.print(",");
   Serial.println(y);
+  if (abs(y - init_y_angle) < 1) {
+
+    drive_motor_stop();
+  }
 }
 
 void servo_control_loop() {
 
-  float servo_out;
-  float servo_input;
+  // float servo_out;
+  // float servo_input;
 
-  if (x <= init_x_angle) {
+  // if (x <= init_x_angle) {
 
-    servo_input = x;
-  } else {
+  //   servo_input = x;
+  // } else {
 
-    servo_input = init_x_angle - (x - init_x_angle);
-  }
+  //   servo_input = init_x_angle - (x - init_x_angle);
+  // }
 
-  servo_out = servo_angle.compute(servo_input);
+  // servo_out = servo_angle.compute(servo_input);
 
-  if (x <= init_x_angle) {
+  // if (x <= init_x_angle) {
 
-    servo_out = init_servo_pos + servo_out;
-  } else {
+  //   servo_out = init_servo_pos + servo_out;
+  // } else {
 
-    servo_out = init_servo_pos - servo_out;
-  }
+  //   servo_out = init_servo_pos - servo_out;
+  // }
 
-  drive_servo(&servo_out);
+  // drive_servo(&servo_out);
   //Serial.println(servo_out);
 }
 
@@ -83,7 +87,7 @@ void drive_motor_control_loop() {
 
   drive_out = drive_wheel.compute(drive_input);
 
-  if (drive_out == 0) {
+  if (drive_out == 0 || abs(y - init_y_angle) < 1) {
 
     drive_motor_stop();
   } else if (drive_out > 0) {

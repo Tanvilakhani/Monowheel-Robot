@@ -19,7 +19,7 @@ void drive_motor_drive(bool dir, float* speed) {
   }
 
   // int spd = map(abs(*speed), 0, 255, 110, 255);
-  int spd = 105 + (abs(*speed));
+  int spd = 90 + (abs(*speed));
   analogWrite(A_EN, spd);
 }
 

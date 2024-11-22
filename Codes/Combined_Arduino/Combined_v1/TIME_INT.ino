@@ -1,8 +1,8 @@
 // Frequency options (uncomment desired frequency)
 //#define FREQ_1HZ    // 1 time per second
 //#define FREQ_2HZ    // 2 times per second
-#define FREQ_10HZ  // 10 times per second
-//#define FREQ_100HZ  // 100 times per second
+//#define FREQ_10HZ  // 10 times per second
+#define FREQ_100HZ  // 100 times per second
 
 volatile uint8_t timer2_counter = 0;
 
