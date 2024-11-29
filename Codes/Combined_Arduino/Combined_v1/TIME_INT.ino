@@ -56,25 +56,25 @@ ISR(TIMER2_COMPA_vect) {
         if (++timer2_counter >= 62) {  // 62.5Hz / 62 ≈ 1Hz
             timer2_counter = 0;
             servo_control_loop();
-            drive_motor_control_loop();
+            //drive_motor_control_loop();
         }
     
     #elif defined(FREQ_2HZ)
         if (++timer2_counter >= 31) {  // 62.5Hz / 31 ≈ 2Hz
             timer2_counter = 0;
             servo_control_loop();
-            drive_motor_control_loop();
+            //drive_motor_control_loop();
         }
     
     #elif defined(FREQ_10HZ)
         if (++timer2_counter >= 6) {   // 62.5Hz / 6 ≈ 10Hz
             timer2_counter = 0;
             servo_control_loop();
-            drive_motor_control_loop();
+            //drive_motor_control_loop();
         }
     
     #elif defined(FREQ_100HZ)
         servo_control_loop();  // Direct 100Hz execution
-        drive_motor_control_loop();
+        //drive_motor_control_loop();
     #endif
 }

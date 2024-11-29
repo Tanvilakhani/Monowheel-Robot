@@ -1,4 +1,4 @@
-#include </Users/yasas/Documents/GitHub/Monowheel-Robot/Codes/Combined_Arduino/Combined_v1/Kalman_Filter_Library/Kalman.h> // Source: https://github.com/TKJElectronics/KalmanFilter
+#include <Kalman.h> // Source: https://github.com/TKJElectronics/KalmanFilter
 
 
 #define RESTRICT_PITCH // Comment out to restrict roll to ±90deg instead - please read: http://www.freescale.com/files/sensors/doc/app_note/AN3461.pdf
@@ -21,7 +21,7 @@ uint8_t i2cData[14]; // Buffer for I2C data
 // TODO: Make calibration routine
 
 void imu_init() {
-  Serial.begin(115200);
+
   Wire.begin();
 #if ARDUINO >= 157
   Wire.setClock(400000UL); // Set I2C frequency to 400kHz
