@@ -13,25 +13,6 @@ double x, y;
 float init_x_angle;
 float init_y_angle;
 
-void imuTask(void* parameter) {
-  for (;;) {
-    double new_x, new_y;
-
-    // Read IMU angles
-    imu_getangle(&new_x, &new_y);
-
-    // Safely update global variables
-    noInterrupts();
-    x = new_x;
-    y = new_y;
-    interrupts();
-
-    // Delay to control task frequency
-    // Adjust based on your requirements
-    vTaskDelay(pdMS_TO_TICKS(5));
-  }
-}
-
 void setup() {
 
   Serial.begin(115200);
@@ -58,26 +39,17 @@ void setup() {
   Serial.println(init_y_angle);
 
   time_int_init();
-
-  xTaskCreate(
-    imuTask,     // Task function
-    "IMU_Task",  // Task name
-    4096,        // Stack size (adjust as needed)
-    NULL,        // Task parameters
-    2,           // Priority
-    NULL         // Task handle
-  );
 }
 
 void loop() {
 
-  //imu_getangle(&x, &y);
+  imu_getangle(&x, &y);
 
   // Serial.print(x);
   // Serial.print(",");
   // Serial.println(y);
   if (abs(y - init_y_angle) < 1) drive_motor_stop();
-  //delay(5);
+  delay(5);
 }
 
 void servo_control_loop() {
@@ -125,5 +97,5 @@ void drive_motor_control_loop() {
 
     drive_motor_drive(1, &drive_out);
   }
-  Serial.println(drive_out);
+  //Serial.println(drive_out);
 }
