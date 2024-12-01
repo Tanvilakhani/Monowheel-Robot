@@ -1,10 +1,10 @@
 #include <PID.h>
 
-PIDController servo_angle(2, 0.0, 0, 0, 40);
+PIDController servo_angle(0.5, 0.02, 0.002, 0, 15);
 const int servo_pin = 32;
-int init_servo_pos = 95;
+int init_servo_pos = 90;
 
-PIDController drive_wheel(2, 0.0, 0, -155, 155);
+PIDController drive_wheel(3, 0.01, 0, -155, 155);
 const int A_IA = 33;
 const int A_IB = 27;
 const int A_EN = 13;
@@ -49,7 +49,7 @@ void loop() {
   // Serial.print(",");
   // Serial.println(y);
   if (abs(y - init_y_angle) < 1) drive_motor_stop();
-  delay(5);
+  delay(10);
 }
 
 void servo_control_loop() {
@@ -69,10 +69,10 @@ void servo_control_loop() {
 
   if (x <= init_x_angle) {
 
-    servo_out = init_servo_pos + servo_out;
+    servo_out = init_servo_pos - servo_out;
   } else {
 
-    servo_out = init_servo_pos - servo_out;
+    servo_out = init_servo_pos + servo_out;
   }
 
   int angle = int(servo_out);
