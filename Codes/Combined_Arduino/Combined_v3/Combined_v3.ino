@@ -1,8 +1,8 @@
 #include <PID.h>
 
-PIDController servo_angle(0.5, 0.02, 0.002, 0, 15);
+PIDController servo_angle(0.4, 0.02, 0.002, 0, 25);
 const int servo_pin = 32;
-int init_servo_pos = 90;
+int init_servo_pos = 85;
 
 PIDController drive_wheel(3, 0.01, 0, -155, 155);
 const int A_IA = 33;
@@ -12,21 +12,31 @@ const int A_EN = 13;
 double x, y;
 float init_x_angle;
 float init_y_angle;
+unsigned long ptim;
+
+bool drive;
+unsigned long pdrtim;
+
+const int led_pin = 2;
 
 void setup() {
 
   Serial.begin(115200);
 
+  led_init();
   imu_init();
   servo_init();
   drive_motor_init();
 
   short i = 0;
-  while (i <= 200) {
+  while (i <= 20) {
 
     imu_getangle(&x, &y);
     i++;
-    delay(10);
+    led_on();
+    delay(100);
+    led_off();
+    delay(100);
   }
   init_x_angle = x;
   servo_angle.setSetpoint(init_x_angle);
@@ -39,17 +49,42 @@ void setup() {
   Serial.println(init_y_angle);
 
   time_int_init();
+
+  pdrtim = millis();
+  delay(1000);
+  led_on();
 }
 
 void loop() {
 
-  imu_getangle(&x, &y);
+  if (millis() - ptim >= 10) {
+
+    imu_getangle(&x, &y);
+    ptim = millis();
+  }
 
   // Serial.print(x);
   // Serial.print(",");
   // Serial.println(y);
-  if (abs(y - init_y_angle) < 1) drive_motor_stop();
-  delay(10);
+
+  if (abs(y - init_y_angle) < 5) {
+
+    if (!drive) drive_motor_stop();
+
+    if ((!drive) && (millis() - pdrtim) >= 1000) drive = true;
+
+    float spd = 3;
+    if (drive) {
+
+      drive_motor_drive(1, &spd);
+      led_on();
+    }
+  } else {
+
+    drive = false;
+    pdrtim = millis();
+    led_off();
+  }
 }
 
 void servo_control_loop() {
@@ -87,7 +122,7 @@ void drive_motor_control_loop() {
 
   drive_out = drive_wheel.compute(drive_input);
 
-  if (drive_out == 0 || abs(y - init_y_angle) < 1) {
+  if ((drive_out == 0 || abs(y - init_y_angle) < 5) && !drive) {
 
     drive_motor_stop();
   } else if (drive_out > 0) {
