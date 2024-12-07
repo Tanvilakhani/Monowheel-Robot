@@ -24,7 +24,7 @@ def run_flask_app():
     app.run(host='0.0.0.0', port=5001, debug=False)
 
 # Object Detection and Distance Fusion Code
-IMAGE_FEED_URL = "http://172.20.10.2:81/stream" 
+IMAGE_FEED_URL = "http://10.136.45.13:81/stream" 
 FLASK_DISTANCE_URL = "http://127.0.0.1:5001/data"
 ULTRASONIC_WEIGHT = 0.7
 IMAGE_WEIGHT = 0.3

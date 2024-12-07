@@ -16,6 +16,8 @@ unsigned long ptim;
 
 bool drive;
 unsigned long pdrtim;
+unsigned long pdrtim2;
+float spd = 1;
 
 const int led_pin = 2;
 
@@ -27,6 +29,7 @@ void setup() {
   imu_init();
   servo_init();
   drive_motor_init();
+  in_init();
 
   short i = 0;
   while (i <= 40) {
@@ -67,16 +70,29 @@ void loop() {
   // Serial.print(",");
   // Serial.println(y);
 
+  bool a, b = in_stat();
+
   if (abs(y - init_y_angle) < 5) {
 
     if (!drive) drive_motor_stop();
 
-    if ((!drive) && (millis() - pdrtim) >= 1000) drive = true;
+    if (!drive && ((millis() - pdrtim) >= 1000) && !(!a && !b)) drive = true;
 
-    float spd = 5;
     if (drive) {
+      
+      if (millis() - pdrtim2 >= 10) {
 
-      drive_motor_drive(1, &spd);
+        spd++;
+
+        if ((a && !b) || (!a && b)) spd = constrain(spd, 0, 50);
+        else if (a && b) spd = constrain(spd, 0, 100);
+
+        pdrtim2 = millis();
+      }
+
+      if (!a && !b) drive = false;
+      else if ((a && !b) || (a && b)) drive_motor_drive(1, &spd);
+      else if (a && b) drive_motor_drive(0, &spd);
       led_on();
     }
   } else {
@@ -84,6 +100,7 @@ void loop() {
     drive = false;
     pdrtim = millis();
     led_off();
+    spd = 1;
   }
 }
 
@@ -125,10 +142,10 @@ void drive_motor_control_loop() {
   if ((drive_out == 0 || abs(y - init_y_angle) < 5) && !drive) {
 
     drive_motor_stop();
-  } else if (drive_out > 0) {
+  } else if ((drive_out > 0) && !drive) {
 
     drive_motor_drive(0, &drive_out);
-  } else {
+  } else if (!drive) {
 
     drive_motor_drive(1, &drive_out);
   }
