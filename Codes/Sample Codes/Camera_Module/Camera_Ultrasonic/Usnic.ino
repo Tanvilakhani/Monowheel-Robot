@@ -1,52 +1,59 @@
-/***
-  Adapted for Seeed Studio Xiao ESP32-S3
-***/
-
-// Assign GPIO pins for TRIG and ECHO
+// Ultrasonic Sensor Pins
 const int trigPin = D5;
 const int echoPin = D6;
 
-// Define sound velocity in cm/uS
+// Global Variables
 #define SOUND_VELOCITY 0.034
 #define CM_TO_INCH 0.393701
 
-long duration;
-float distanceCm;
-float distanceInch;
-
-unsigned long ptim;
+unsigned long previousMillis = 0;
+float dist_thresh = 50;
 
 void usnic_init() {
 
-  pinMode(trigPin, OUTPUT);  // Set the trigPin as an OUTPUT
-  pinMode(echoPin, INPUT);   // Set the echoPin as an INPUT
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
 }
 
-void get_distance() {
+bool measureDistance() {
 
-  if (millis() - ptim >= 1000) {
+  // Clear the trigPin
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
 
-    // Clear the trigPin
-    digitalWrite(trigPin, LOW);
-    delayMicroseconds(2);
+  // Trigger pulse
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
 
-    // Set the trigPin HIGH for 10 microseconds
-    digitalWrite(trigPin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trigPin, LOW);
+  // Measure pulse duration
+  long duration = pulseIn(echoPin, HIGH);
 
-    // Read the echoPin and measure the duration of the pulse
-    duration = pulseIn(echoPin, HIGH);
-
-    // Calculate the distance in cm and inches
+  // Validate measurement
+  if (duration > 0) {
     distanceCm = duration * SOUND_VELOCITY / 2;
-    distanceInch = distanceCm * CM_TO_INCH;
 
-    // Print the results to the Serial Monitor
-    Serial.print("Distance (cm): ");
-    Serial.println(distanceCm);
-    Serial.print("Distance (inch): ");
-    Serial.println(distanceInch);
-    ptim = millis();
+    // Optional range validation
+    if (distanceCm > 400) return false;
+    else if (distanceCm < dist_thresh) {
+      
+      drive_stop();
+      dr_stp = true;
+    }
+    else if (distanceCm >= dist_thresh) {
+
+      drive();
+      object_not_detected();
+      snd = true;
+      dr_stp = false;
+    }
+
+    // Log distance
+    // Serial.print("Distance (cm): ");
+    // Serial.println(distanceCm);
+
+    return true;
   }
+
+  return false;
 }

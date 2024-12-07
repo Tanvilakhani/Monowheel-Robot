@@ -1,25 +1,34 @@
 #include "esp_camera.h"
 #include <WiFi.h>
 
-#define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
+#define CAMERA_MODEL_XIAO_ESP32S3  // Has PSRAM
 
 #include "camera_pins.h"
 
-// ===========================
-// Enter your WiFi credentials
-// ===========================
+// =================
+// WiFi credentials
+// =================
 const char* ssid = "Lexa";
 const char* password = "lexa_w!f!";
 
 void startCameraServer();
 void setupLedFlash(int pin);
 
+TaskHandle_t serverTaskHandle = NULL;
+
+bool snd;
+bool dr_stp;
+
+unsigned long ptim;
+float distanceCm = 0;
+
 void setup() {
 
   usnic_init();
+  out_init();
 
   Serial.begin(115200);
-  while(!Serial);
+  //while(!Serial);
   Serial.setDebugOutput(true);
   Serial.println();
 
@@ -44,17 +53,17 @@ void setup() {
   config.pin_reset = RESET_GPIO_NUM;
   config.xclk_freq_hz = 20000000;
   config.frame_size = FRAMESIZE_UXGA;
-  config.pixel_format = PIXFORMAT_JPEG; // for streaming
+  config.pixel_format = PIXFORMAT_JPEG;  // for streaming
   //config.pixel_format = PIXFORMAT_RGB565; // for face detection/recognition
   config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
   config.fb_location = CAMERA_FB_IN_PSRAM;
   config.jpeg_quality = 12;
   config.fb_count = 1;
-  
+
   // if PSRAM IC present, init with UXGA resolution and higher JPEG quality
   //                      for larger pre-allocated frame buffer.
-  if(config.pixel_format == PIXFORMAT_JPEG){
-    if(psramFound()){
+  if (config.pixel_format == PIXFORMAT_JPEG) {
+    if (psramFound()) {
       config.jpeg_quality = 10;
       config.fb_count = 2;
       config.grab_mode = CAMERA_GRAB_LATEST;
@@ -78,15 +87,15 @@ void setup() {
     return;
   }
 
-  sensor_t * s = esp_camera_sensor_get();
+  sensor_t* s = esp_camera_sensor_get();
   // initial sensors are flipped vertically and colors are a bit saturated
   if (s->id.PID == OV3660_PID) {
-    s->set_vflip(s, 1); // flip it back
-    s->set_brightness(s, 1); // up the brightness just a bit
-    s->set_saturation(s, -2); // lower the saturation
+    s->set_vflip(s, 1);        // flip it back
+    s->set_brightness(s, 1);   // up the brightness just a bit
+    s->set_saturation(s, -2);  // lower the saturation
   }
   // drop down frame size for higher initial frame rate
-  if(config.pixel_format == PIXFORMAT_JPEG){
+  if (config.pixel_format == PIXFORMAT_JPEG) {
     s->set_framesize(s, FRAMESIZE_QVGA);
   }
 
@@ -110,10 +119,26 @@ void setup() {
   Serial.print("Camera Ready! Use 'http://");
   Serial.print(WiFi.localIP());
   Serial.println("' to connect");
+
+  xTaskCreatePinnedToCore(
+    run_server,           // Task function
+    "DistanceMeasurement",  // Task name
+    2048,                   // Stack size (bytes)
+    NULL,                   // Parameter
+    1,                      // Priority
+    &serverTaskHandle,      // Task handle
+    0                       // Core to run the task (core 1)
+  );
+
+  server_init();
 }
 
 void loop() {
 
-  get_distance();
-  // Do nothing. Everything is done in another task by the web server
+  if (millis() - ptim >= 1000) {
+
+    measureDistance();
+    send_dat(&distanceCm);
+    ptim = millis();
+  }
 }

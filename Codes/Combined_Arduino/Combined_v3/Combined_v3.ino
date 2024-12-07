@@ -1,8 +1,8 @@
 #include <PID.h>
 
-PIDController servo_angle(0.4, 0.02, 0.002, 0, 25);
+PIDController servo_angle(0.5, 0.02, 0.002, 0, 35);
 const int servo_pin = 32;
-int init_servo_pos = 85;
+int init_servo_pos = 75;
 
 PIDController drive_wheel(3, 0.01, 0, -155, 155);
 const int A_IA = 33;
@@ -29,14 +29,14 @@ void setup() {
   drive_motor_init();
 
   short i = 0;
-  while (i <= 20) {
+  while (i <= 40) {
 
     imu_getangle(&x, &y);
     i++;
     led_on();
-    delay(100);
+    delay(50);
     led_off();
-    delay(100);
+    delay(50);
   }
   init_x_angle = x;
   servo_angle.setSetpoint(init_x_angle);
@@ -73,7 +73,7 @@ void loop() {
 
     if ((!drive) && (millis() - pdrtim) >= 1000) drive = true;
 
-    float spd = 3;
+    float spd = 5;
     if (drive) {
 
       drive_motor_drive(1, &spd);
