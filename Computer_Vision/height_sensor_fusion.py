@@ -7,7 +7,7 @@ from scipy.interpolate import interp1d
 
 distances = np.array([18.72,22.22,24.41,26.42,28.1,31.72,35.99,40.38, 42.98, 43.71, 49.52, 52.5, 55.62, 56.63, 58.5, 59.31])  # Example calibration distances in cm
 pixel_differences = np.array([228.19,226.91,191.83,185.97,186.54,185.82,184.73,83.47, 82.64, 83.13, 88.69, 61.58,62.11, 61.64, 72.98, 72.89])  # Example pixel height differences
-object_height = 10  # Known actual height of the object in cm
+object_height = 10  # Known actual height of a object in cm
 
 pixel_to_distance = interp1d(pixel_differences, distances, fill_value="extrapolate")
 
