@@ -19,6 +19,8 @@ TaskHandle_t serverTaskHandle = NULL;
 unsigned long ptim;
 float distanceCm = 0;
 
+bool ovr;
+
 void setup() {
 
   usnic_init();

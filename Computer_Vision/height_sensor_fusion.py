@@ -4,6 +4,7 @@ import numpy as np
 from ultralytics import YOLO
 from filterpy.kalman import KalmanFilter
 from scipy.interpolate import interp1d
+import requests
 
 distances = np.array([18.72,22.22,24.41,26.42,28.1,31.72,35.99,40.38, 42.98, 43.71, 49.52, 52.5, 55.62, 56.63, 58.5, 59.31])  # Example calibration distances in cm
 pixel_differences = np.array([228.19,226.91,191.83,185.97,186.54,185.82,184.73,83.47, 82.64, 83.13, 88.69, 61.58,62.11, 61.64, 72.98, 72.89])  # Example pixel height differences
@@ -137,6 +138,21 @@ def sensor_fusion(frame):
 
                 print(f"Object: {obj_class}, Ultrasonic: {ultrasonic_distance} cm, "
                     f"Image: {image_distance} cm, Fused: {fused_height:.2f} cm")
+                
+                if ultrasonic_distance < 30:
+                    if fused_height < 3:
+                        try:
+                            response = requests.get('http://10.136.45.13:90/climb')
+                            print(f"Alert sent. Server response: {response.status_code}")
+                        except requests.RequestException as e:
+                            print(f"Error sending alert: {e}")
+                    else:
+                        try:
+                            response = requests.get('http://10.136.45.13:90/reverse')
+                            print(f"Alert sent. Server response: {response.status_code}")
+                        except requests.RequestException as e:
+                            print(f"Error sending alert: {e}")
+
             else:
                 print("No object class detected")
         else:

@@ -10,7 +10,6 @@ unsigned long previousMillis = 0;
 float dist_thresh = 25;
 
 unsigned long pundtim;
-bool ovr;
 
 void usnic_init() {
 

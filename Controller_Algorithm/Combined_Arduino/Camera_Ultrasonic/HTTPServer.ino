@@ -18,14 +18,14 @@ void server_init() {
 void handleClimb() {
 
   String message = "Climb OK";
-  out_send(1, 1);
+  if (ovr) out_send(1, 1);
   server.send(200, "text/plain", message);
 }
 
 void handleReverse() {
 
   String message = "Reverse OK";
-  out_send(0, 1);
+  if (ovr) out_send(0, 1);
   server.send(200, "text/plain", message);
 }
 

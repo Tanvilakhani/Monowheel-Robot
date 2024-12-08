@@ -1,6 +1,6 @@
 #include <HTTPClient.h>
 
-const String serverName = "http://10.136.45.10:5001/data";
+const String serverName = "http://10.136.45.20:5001/data";
 
 void send_dat(float* distanceCm) {
 
