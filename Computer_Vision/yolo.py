@@ -3,11 +3,12 @@ import torch
 from ultralytics import YOLO
 import numpy as np
 
-MODEL_PATH = "models/yolo11m.pt"  
+# MODEL_PATH = "models/yolo11m.pt"  
+MODEL_PATH = "models/yolov8s.pt"  
 model = YOLO(MODEL_PATH)  
 
-IP_CAMERA_URL = "http://172.20.10.2:81/stream"
-# IP_CAMERA_URL = "http://10.136.45.13:81/stream"
+# IP_CAMERA_URL = "http://172.20.10.2:81/stream"
+IP_CAMERA_URL = "http://10.136.45.13:81/stream"
 
 cap = cv2.VideoCapture(IP_CAMERA_URL)
 fps = cap.get(cv2.CAP_PROP_FPS)
