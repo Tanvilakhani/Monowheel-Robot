@@ -23,10 +23,10 @@ This project explores the innovative design of a single-wheeled robotic platform
 - Sensor data processing for autonomous operation
 
 ### Repository Contents
-- `cad/`: Complete CAD design drawings
-- `arduino/`: Arduino IDE project files
-- `computer_vision/`: Sensor fusion and computer vision code
-- `docs/`: Additional project documentation
+- `Mechanical_Design/`: Complete CAD design drawings
+- `Controller_Algorithm/`: Arduino IDE project files
+- `Computer_Vision/`: Sensor fusion and computer vision code
+- `Reports/`: Additional project documentation
 
 ### Technical Highlights
 - Single wheel locomotion mechanism
@@ -41,17 +41,13 @@ The primary goal of this project was to demonstrate:
 - Integration of multiple sensing technologies
 - Practical application of physics and robotics concepts
 
-### Setup and Installation
-1. Review CAD designs
-2. Set up Arduino development environment
-3. Upload provided firmware
-4. Configure sensor fusion algorithms
 
 ### Contributions
 This project was developed as part of the ROC507Z module, representing a significant exploration of advanced robotic design and intelligent systems.
 
-### License
-[Add appropriate license information]
-
 ### Contact
-[Add contact information for project authors]
+Yasas Chandrasena : yasassb@yahoo.com
+Puranjana Wijayarathna : puranja@gmail.com
+Sudheera :
+Tanvi Lakhani :
+Himeth Sanjula :
