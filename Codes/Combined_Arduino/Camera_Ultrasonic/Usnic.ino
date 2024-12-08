@@ -40,15 +40,12 @@ bool measureDistance() {
     else if (distanceCm < dist_thresh) {
 
       out_send(0, 0);
-      dr_stp = true;
       pundtim = millis();
     } else if (distanceCm >= dist_thresh) {
 
       if ((millis() - pundtim) >= 2000) {
 
         out_send(1, 0);
-        snd = true;
-        dr_stp = false;
       }
     }
 

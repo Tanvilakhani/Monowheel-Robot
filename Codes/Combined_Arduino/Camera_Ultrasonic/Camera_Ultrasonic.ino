@@ -16,9 +16,6 @@ void setupLedFlash(int pin);
 
 TaskHandle_t serverTaskHandle = NULL;
 
-bool snd;
-bool dr_stp;
-
 unsigned long ptim;
 float distanceCm = 0;
 
