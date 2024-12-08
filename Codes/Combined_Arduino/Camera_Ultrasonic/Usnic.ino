@@ -7,9 +7,10 @@ const int echoPin = D6;
 #define CM_TO_INCH 0.393701
 
 unsigned long previousMillis = 0;
-float dist_thresh = 50;
+float dist_thresh = 25;
 
 unsigned long pundtim;
+bool ovr;
 
 void usnic_init() {
 
@@ -39,13 +40,18 @@ bool measureDistance() {
     if (distanceCm > 400) return false;
     else if (distanceCm < dist_thresh) {
 
-      out_send(0, 0);
-      pundtim = millis();
+      if (!ovr) {
+
+        out_send(0, 0);
+        ovr = true;
+        pundtim = millis();
+      }
     } else if (distanceCm >= dist_thresh) {
 
       if ((millis() - pundtim) >= 2000) {
 
         out_send(1, 0);
+        ovr = false;
       }
     }
 

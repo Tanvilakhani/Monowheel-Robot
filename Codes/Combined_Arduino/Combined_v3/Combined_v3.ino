@@ -66,7 +66,7 @@ void loop() {
     ptim = millis();
   }
 
-  // Serial.print(x);
+  // Serial.println(x);
   // Serial.print(",");
   // Serial.println(y);
 
@@ -79,7 +79,7 @@ void loop() {
     if (!drive && ((millis() - pdrtim) >= 1000) && !(!a && !b)) drive = true;
 
     if (drive) {
-      
+
       if (millis() - pdrtim2 >= 10) {
 
         spd++;
