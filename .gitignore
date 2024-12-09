@@ -3,3 +3,5 @@
 mwr/
 models/
 *.pt 
+*.mp4
+*.pth
