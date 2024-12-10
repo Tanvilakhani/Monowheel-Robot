@@ -4,13 +4,9 @@ import numpy as np
 from ultralytics import YOLO
 from filterpy.kalman import KalmanFilter
 from scipy.interpolate import interp1d
-import requests
 
-# distances = np.array([49.66,50.01,49.95,43.26,42.89,42.91,42.43,38.33,37.43,35.67,36.43,35.55,34.71,33.93,32.4,32.38,30.72,30.31,31.69,27.91,27.88,14.58,54.37,60.78,51.22,50.58,50.01,43.26,24.65,28.34,27.45,22.81,23.29,25.09,26.2,23.83,23.36,24.24,25.13,28.24,21.76,20.15,19.24,17.59,18.43])  # Example calibration distances in cm
-distances = np.array([18.43,25.13,30.72,35.67, 42.43,49.95 ])  # Example calibration distances in cm
-# pixel_differences = np.array([65.25,64.11,65.30,69.00,65.56,65.61,77.55,90.90,89.84,90.48,90.14,101.78,103.82,102.06,103.46,101.87,100.58,116.52,115.48,114.84,115.79,157.42,239.51,116.80,53.16,53.88,64.50,65.46,67.05,108.31,122.78,122.00,136.14,133.44,132.72,133.72,139.53,134.45,140.07,139.94,149.20,142.34,143.75,143.68,144.14]
-pixel_differences = np.array([144.14,140.07,100.58,90.48,77.55, 65.30]
-)  # Example pixel height differences
+distances = np.array([18.72,22.22,24.41,26.42,28.1,31.72,35.99,40.38, 42.98, 43.71, 49.52, 52.5, 55.62, 56.63, 58.5, 59.31])  # Example calibration distances in cm
+pixel_differences = np.array([228.19,226.91,191.83,185.97,186.54,185.82,184.73,83.47, 82.64, 83.13, 88.69, 61.58,62.11, 61.64, 72.98, 72.89])  # Example pixel height differences
 object_height = 10  # Known actual height of a object in cm
 
 pixel_to_distance = interp1d(pixel_differences, distances, fill_value="extrapolate")
@@ -20,8 +16,8 @@ kf = KalmanFilter(dim_x=2, dim_z=1)
 kf.x = np.array([50, 0])  # Initial state [distance, velocity]
 kf.F = np.array([[1, 1], [0, 1]])  # State transition matrix
 kf.H = np.array([[1, 0]])  # Measurement function
-kf.P *= 12  # Covariance matrix
-kf.R = 5 # Measurement noise
+kf.P *= 10  # Covariance matrix
+kf.R = 5  # Measurement noise
 kf.Q = 0.1 * np.eye(2)
 
 app = Flask(__name__)
@@ -119,42 +115,28 @@ def sensor_fusion(frame):
 
         frame_height, frame_width = frame.shape[:2]
 
+        print(f"Distance: {ultrasonic_distance} cm")
         obj_class, image_distance, box = process_image(frame)
 
         if box is not None:
             x, y, w, h = box
 
             if obj_class is not None and ultrasonic_distance:
-                print(f"ulatrasonic: {ultrasonic_distance}")
-                print(f"pixel height: {image_distance}")
+                print(f"Frame width: {frame_width}")
+                print(f"us: {ultrasonic_distance}")
+                print(f"image_distance: {image_distance}")
 
                 kf.update(ultrasonic_distance)
                 filtered_distance = kf.x[0]
 
                 fused_height = calculate_height(filtered_distance, h)
-                error = 1.3
-                fused_height = calculate_height(filtered_distance, h) - error
+
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
                 text = f"{obj_class}, Height: {fused_height:.2f} cm"
                 cv2.putText(frame, text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
                 print(f"Object: {obj_class}, Ultrasonic: {ultrasonic_distance} cm, "
-                    f"Pixel Diff: {image_distance} cm, Fused Height: {fused_height:.2f} cm")
-                
-                if ultrasonic_distance < 30:
-                    if fused_height < 3:
-                        try:
-                            response = requests.get('http://172.20.10.4:90/climb')
-                            print(f"Alert sent. Server response: {response.status_code}")
-                        except requests.RequestException as e:
-                            print(f"Error sending alert: {e}")
-                    else:
-                        try:
-                            response = requests.get('http://172.20.10.4:90/reverse')
-                            print(f"Alert sent. Server response: {response.status_code}")
-                        except requests.RequestException as e:
-                            print(f"Error sending alert: {e}")
-
+                    f"Image: {image_distance} cm, Fused: {fused_height:.2f} cm")
             else:
                 print("No object class detected")
         else:
@@ -166,7 +148,7 @@ def sensor_fusion(frame):
 @app.route('/video_feed')
 def video_feed():
     """Endpoint to stream video"""
-    return Response(generate_frames('http://172.20.10.4:81/stream'), 
+    return Response(generate_frames('http://10.136.45.13:81/stream'), 
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/data', methods=['POST'])
