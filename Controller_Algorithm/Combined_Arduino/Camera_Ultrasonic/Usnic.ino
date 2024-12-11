@@ -47,7 +47,7 @@ bool measureDistance() {
       }
     } else if (distanceCm >= dist_thresh) {
 
-      if ((millis() - pundtim) >= 10000) {
+      if ((millis() - pundtim) >= 6000) {
 
         out_send(1, 0);
         ovr = false;

@@ -2,7 +2,7 @@
 
 PIDController servo_angle(0.5, 0.02, 0.002, 0, 35);
 const int servo_pin = 32;
-int init_servo_pos = 70;
+int init_servo_pos = 75;
 
 PIDController drive_wheel(3, 0.01, 0, -155, 155);
 const int A_IA = 33;
@@ -79,7 +79,7 @@ void loop() {
   // Serial.print(",");
   // Serial.println(b);
 
-  if (abs(y - init_y_angle) < 5) {
+  if (abs(y - init_y_angle) < 10) {
 
     if (!drive) drive_motor_stop();
 
@@ -91,9 +91,9 @@ void loop() {
 
         spd++;
 
-        if ((a && !b) || (!a && b)) spd = constrain(spd, 0, 190);
+        if ((a && !b) || (!a && b)) spd = constrain(spd, 0, 30);
         else if (a && b) spd = constrain(spd, 0, 150);
-
+        
         pdrtim2 = millis();
       }
 
