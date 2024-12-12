@@ -6,14 +6,17 @@ from collections import OrderedDict
 from scipy.spatial import distance as dist
 import time
 
+
 model = YOLO("yolov8n.pt")  
 
+
 class ObjectTracker:
-    def __init__(self, max_disappeared=50):
+    def __init__(self, max_disappeared=10, max_distance=100):
         self.next_object_id = 0
         self.objects = OrderedDict()
         self.disappeared = OrderedDict()
         self.max_disappeared = max_disappeared
+        self.max_distance = max_distance
 
     def register(self, bbox, class_name):
         self.objects[self.next_object_id] = {"bbox": bbox, "class_name": class_name}
@@ -54,7 +57,7 @@ class ObjectTracker:
             for row, col in zip(rows, cols):
                 if row in used_rows or col in used_cols:
                     continue
-                if D[row, col] > 50:
+                if D[row, col] > self.max_distance:
                     continue
 
                 object_id = object_ids[row]
@@ -78,60 +81,67 @@ class ObjectTracker:
         return self.objects
 
 
-tracker = ObjectTracker(max_disappeared=30)
 
-stream_url = "http://172.20.10.4:81/stream"
-# stream_url = 0
-cap = cv2.VideoCapture(stream_url)  
+tracker = ObjectTracker(max_disappeared=5, max_distance=50)  
+
+
+stream_url = "http://192.168.213.153:81/stream"
+cap = cv2.VideoCapture(stream_url)
 
 if not cap.isOpened():
-    print("Error: Could not open webcam.")
+    print("Error: Could not open video stream.")
     sys.exit()
 
 frame_count = 0
 start_time = time.time()
 
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        print("Error: Failed to read frame from webcam.")
-        break
+try:
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            print("Error: Failed to read frame from video stream.")
+            break
 
-   
-    resized_frame = cv2.resize(frame, (640, 480))
-
-    if frame_count % 5 == 0:
-        results = model(resized_frame, conf=0.5)
-        detections = []
-        for box in results[0].boxes:
-            x, y, x2, y2 = box.xyxy[0].numpy()
-            conf = box.conf[0].item()
-            class_id = int(box.cls[0].item())
-            class_name = model.names[class_id]
-            if conf > 0.7:  
-                detections.append((int(x), int(y), int(x2), int(y2), class_name))
-
-        
-        tracked_objects = tracker.update(detections)
-
-  
-    for object_id, data in tracker.objects.items():
-        bbox = data["bbox"]
-        class_name = data["class_name"]
-        x, y, x2, y2 = bbox
-        
-        cv2.rectangle(frame, (x, y), (x2, y2), (0, 255, 0), 2)
        
-        cv2.putText(frame, class_name, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        resized_frame = cv2.resize(frame, (640, 480))
 
-   
-    cv2.imshow("YOLO Object Tracking with Bounding Boxes", frame)
-    frame_count += 1
+        if frame_count % 2 == 0:  
+            results = model(resized_frame, conf=0.5)
+            detections = []
+            for box in results[0].boxes:
+                x, y, x2, y2 = box.xyxy[0].cpu().numpy()  
+                conf = box.conf[0].item()
+                class_id = int(box.cls[0].item())
+                class_name = model.names[class_id]
+                if conf > 0.7:  
+                    detections.append((int(x), int(y), int(x2), int(y2), class_name))
 
-    if cv2.waitKey(1) & 0xFF == ord("q"):
-        break
+            
+            tracked_objects = tracker.update(detections)
 
-cap.release()
-cv2.destroyAllWindows()
-end_time = time.time()
-print(f"Processed {frame_count} frames in {end_time - start_time:.2f} seconds.")
+        
+        for object_id, data in tracker.objects.items():
+            bbox = data["bbox"]
+            class_name = data["class_name"]
+            x, y, x2, y2 = bbox
+            
+            cv2.rectangle(frame, (x, y), (x2, y2), (0, 255, 0), 2)
+            
+            cv2.putText(frame, class_name, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+       
+        cv2.imshow("YOLO Object Tracking", frame)
+        frame_count += 1
+
+        
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
+
+except KeyboardInterrupt:
+    print("Exiting on user interrupt...")
+
+finally:
+    cap.release()
+    cv2.destroyAllWindows()
+    end_time = time.time()
+    print(f"Processed {frame_count} frames in {end_time - start_time:.2f} seconds.")
