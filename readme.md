@@ -1,5 +1,5 @@
 # Mono Wheel Robot Project
-## Module ROC507Z Masters Coursework
+## Module ROCO507Z Masters Coursework
 
 ### Project Overview
 This project explores the innovative design of a single-wheeled robotic platform, demonstrating advanced principles of robotics, physics, and sensor technologies. The mono wheel robot represents a sophisticated approach to autonomous balance and navigation, pushing the boundaries of robotic mobility and intelligent control systems.
