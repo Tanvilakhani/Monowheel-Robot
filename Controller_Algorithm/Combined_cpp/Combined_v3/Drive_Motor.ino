@@ -17,7 +17,7 @@ void drive_motor_drive(bool dir, float* speed) {
   }
 
   // Map and write the speed to the PWM channel
-  int spd = 60 + abs(*speed); // Adjust speed range as needed
+  int spd = 60 + abs(*speed);
   spd = constrain(spd, 60, 255);
   set_motor_speed(&spd);
 }

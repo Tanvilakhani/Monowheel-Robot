@@ -1,6 +1,6 @@
 #include <ESP32Servo.h>
 
-Servo servo;  // servo controller (multiple can exist)
+Servo servo;
 
 void servo_init() {
 
