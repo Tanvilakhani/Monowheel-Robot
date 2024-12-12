@@ -35,7 +35,6 @@ bool measureDistance() {
   if (duration > 0) {
     distanceCm = duration * SOUND_VELOCITY / 2;
 
-    // Optional range validation
     if (distanceCm > 400) return false;
     else if (distanceCm < dist_thresh) {
 

@@ -33,7 +33,6 @@ void handleReverse() {
 void handleNotFound() {
   String message = "File Not Found\n\n";
   message += "URI: " + server.uri() + "\n";
-  //message += "Method: " + (server.method() == HTTP_GET ? "GET" : "Unknown") + "\n";
   message += "Arguments: " + String(server.args()) + "\n";
 
   server.send(404, "text/plain", message);
