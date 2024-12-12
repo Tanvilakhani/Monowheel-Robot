@@ -6,14 +6,15 @@ from filterpy.kalman import KalmanFilter
 from scipy.interpolate import interp1d
 import requests
 
-distances = np.array([25,30,35,40,45,50])  # Example calibration distances in cm
-# pixel_differences = np.array([253,217,184,158,142,133])  # Example pixel height differences
-# pixel_differences = np.array([273,217,184,158,142,133])  # Example pixel height differences
-pixel_differences = np.array([243,187,174,138,132,123])  # Example pixel height differences
-object_height = 9  # Known actual height of a object in cm
 
+#initializing the actual test object height, ultrasonic distances and their corresponding bounding box heights
+object_height = 9  
+distances = np.array([25,30,35,40,45,50])  
+pixel_differences = np.array([243,187,174,138,132,123])  
+
+
+#interpolation and kalman filter initialization
 pixel_to_distance = interp1d(pixel_differences, distances, fill_value="extrapolate")
-# 5, 5 worked
 kf = KalmanFilter(dim_x=2, dim_z=1)
 kf.x = np.array([25, 0])  # Initial state [distance, velocity]
 kf.F = np.array([[1, 1], [0, 1]])  # State transition matrix
@@ -30,11 +31,6 @@ model = YOLO(YOLO_MODEL)
 
 current_distance = None
 
-def calculate_height(distance, pixel_diff):
-    interpolated_distance = pixel_to_distance(pixel_diff)
-    scale_factor = object_height / interpolated_distance
-    print(f'test: {scale_factor * distance}')
-    return scale_factor * distance
 
 def generate_frames(url):
     """Generator function for streaming frames over HTTP"""
@@ -52,54 +48,35 @@ def generate_frames(url):
         
         f_frame = sensor_fusion(frame)
 
-        # Encode the frame in JPEG format
         ret, buffer = cv2.imencode('.jpg', f_frame)
         if not ret:
             continue
-        
-        # Convert to bytes
         frame_bytes = buffer.tobytes()
-        
-        # Yield the frame in a format suitable for streaming
+    
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
     
-    # Release the video capture when done
     cap.release()
 
 def process_image(frame):
-    """
-    Process an image using YOLOv8 for object detection and distance estimation
-    
-    Args:
-        frame (numpy.ndarray): Input image frame
-    
-    Returns:
-        tuple: (detected class, estimated distance, bounding box)
-               or (None, None, None) if no object detected
-    """
-    # Get image dimensions
+    """ Process frames using YOLOv11 for object detection and distance estimation"""
+
     height, width, _ = frame.shape
-    
-    # Perform object detection
-    results = model(frame, conf=0.5)[0]  # 0.5 confidence threshold
+
+    results = model(frame, conf=0.5)[0] 
     
     if len(results) > 0:
-        # Get the detection with highest confidence
+  
         best_detection = max(results.boxes, key=lambda box: box.conf[0])
-        
-        # Extract bounding box details
         box = best_detection.xyxy[0].cpu().numpy()
         x, y, x2, y2 = box[:4]
         
-        # Calculate bounding box dimensions
+
         w = x2 - x
         h = y2 - y
         
-        # Estimate distance (simplified method based on object height)
         distance = h
         
-        # Get class name
         class_id = int(best_detection.cls[0])
         class_name = model.names[class_id]
         
@@ -107,8 +84,15 @@ def process_image(frame):
     
     return None, None, None
 
+def calculate_height(distance, pixel_diff):
+    """Final object height calculation function"""
+    interpolated_distance = pixel_to_distance(pixel_diff)
+    scale_factor = object_height / interpolated_distance
+    print(f'test: {scale_factor * distance}')
+    return scale_factor * distance
+
 def sensor_fusion(frame):
-    
+    """combines the ultrasonicvalues and bounding box heights to detect actual height"""
     while True:
         ultrasonic_distance = current_distance  
         ultrasonic_distance = float(ultrasonic_distance.get("distance", 0.0))
@@ -166,6 +150,7 @@ def video_feed():
 
 @app.route('/data', methods=['POST'])
 def get_distance():
+    """gets the ultrasonic distance from the sensor distance via server"""
     global current_distance
     
     distance = request.get_json()
@@ -180,4 +165,3 @@ def get_distance():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)
-   
