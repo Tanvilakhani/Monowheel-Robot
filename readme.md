@@ -23,9 +23,9 @@ This project explores the innovative design of a single-wheeled robotic platform
 - Sensor data processing for autonomous operation
 
 ### Repository Contents
-- `Mechanical_Design/`: Complete CAD design drawings
 - `Controller_Algorithm/`: Arduino IDE project files
 - `Computer_Vision/`: Sensor fusion and computer vision code
+- `Mechanical_Design/`: Complete CAD design drawings
 - `Reports/`: Additional project documentation
 
 ### Technical Highlights
